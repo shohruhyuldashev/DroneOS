@@ -1,5 +1,4 @@
 
-```
 # 🚁 DroneOS — Bare-Metal Microkernel for ARM Cortex-A53
 
 **DroneOS** — bu Raspberry Pi Zero 2W (ARM Cortex-A53) uchun noldan yozilgan **bare-metal microkernel** asosidagi eksperimental drone operating system.  
@@ -164,7 +163,8 @@ This project is for educational and research purposes.
 
 ## ✅ Endi GitHub’ga qo‘shish
 
-```bash
+```
+bash
 nano README.md     # yuqoridagi matnni joylash
 git add README.md
 git commit -m "Add project README"
