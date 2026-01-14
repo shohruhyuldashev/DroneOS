@@ -1,12 +1,11 @@
 
-
 ```
 # 🚁 DroneOS — Bare-Metal Microkernel for ARM Cortex-A53
 
 **DroneOS** — bu Raspberry Pi Zero 2W (ARM Cortex-A53) uchun noldan yozilgan **bare-metal microkernel** asosidagi eksperimental drone operating system.  
 Loyiha maqsadi — **bootloader, kernel, scheduler va hardware driverlarni 0 dan yozib**, real embedded OS qanday ishlashini amaliy o‘rganish.
 
----
+
 
 ## ✨ Features
 
@@ -25,7 +24,6 @@ Loyiha maqsadi — **bootloader, kernel, scheduler va hardware driverlarni 0 dan
 - QEMU test build profile
 - Real Raspberry Pi Zero 2W build profile
 
----
 
 ## 🧠 Architecture Overview
 
@@ -41,7 +39,6 @@ Scheduler + Tasks + Drivers
 
 ```
 
----
 
 ## 🛠 Build Requirements
 
@@ -63,7 +60,6 @@ qemu-system-arm
 
 ````
 
----
 
 ## ⚙️ Build Instructions
 
@@ -89,7 +85,7 @@ enable_uart=1
 
 Insert SD card into Raspberry Pi Zero 2W and connect UART (115200 baud).
 
----
+
 
 ### 🔹 QEMU Test Build
 
@@ -99,7 +95,8 @@ make qemu
 
 Run in QEMU:
 
-```bash
+```
+bash
 qemu-system-arm \
   -M raspi2b \
   -kernel kernel7.img \
@@ -108,7 +105,6 @@ qemu-system-arm \
 
 (Used for CPU + kernel logic testing)
 
----
 
 ## 🧩 File Structure
 
@@ -126,7 +122,7 @@ DroneOS/
 └── README.md
 ```
 
----
+
 
 ## 🛰 Current Status
 
@@ -138,7 +134,6 @@ DroneOS/
 * 🔧 Context switching (planned)
 * 🔧 MMU & user-space (future)
 
----
 
 ## 🎯 Project Goal
 
@@ -149,7 +144,7 @@ To build a **fully custom microkernel-based embedded OS** for drone flight contr
 * Hardware driver development
 * Secure and minimal OS design
 
----
+
 
 ## 👨‍💻 Author
 
@@ -157,7 +152,7 @@ To build a **fully custom microkernel-based embedded OS** for drone flight contr
 Embedded OS & Cybersecurity Enthusiast
 Developing DroneOS from scratch 🚀
 
----
+
 
 ## 📜 License
 
@@ -165,7 +160,7 @@ This project is for educational and research purposes.
 
 ````
 
----
+
 
 ## ✅ Endi GitHub’ga qo‘shish
 
