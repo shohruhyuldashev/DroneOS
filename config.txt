@@ -1,0 +1,51 @@
+# config.txt - Raspberry Pi Zero 2W Boot Configuration
+
+# DroneOS custom kernel
+kernel=kernel7.img
+
+# 32-bit mode (ARMv8-A in AArch32)
+arm_64bit=0
+
+# CPU settings
+arm_freq=1000
+core_freq=400
+sdram_freq=450
+over_voltage=2
+
+# Disable unnecessary features for drone
+disable_splash=1
+boot_delay=0
+
+# GPU memory (minimal for headless)
+gpu_mem=16
+
+# UART enable (debugging)
+enable_uart=1
+uart_2ndstage=1
+
+# Disable audio, Bluetooth, WiFi initially (power save)
+dtparam=audio=off
+dtoverlay=disable-bt
+dtoverlay=disable-wifi
+
+# I2C for sensors (IMU)
+dtparam=i2c_arm=on
+dtparam=i2c_arm_baudrate=400000
+
+# SPI for additional sensors
+dtparam=spi=on
+
+# PWM for motor control
+dtoverlay=pwm,pin=12,func=4
+dtoverlay=pwm,pin=13,func=4
+
+# Additional GPIO
+gpio=22=op,dh  # LED indicator
+
+# Performance mode
+force_turbo=1
+
+# ============================================================================
+# cmdline.txt - Kernel command line (DroneOS nol parametrlar)
+# ============================================================================
+# DroneOS doesn't use cmdline.txt (bare metal)

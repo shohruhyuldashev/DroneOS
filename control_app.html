@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DroneOS Remote Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 10px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .status {
+            display: flex;
+            justify-content: space-around;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .status-value {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 3px;
+        }
+        
+        .controls {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .joystick-container {
+            position: relative;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .joystick {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 3px solid rgba(255,255,255,0.3);
+            position: relative;
+        }
+        
+        .joystick-stick {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00D4FF, #0099FF);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+            touch-action: none;
+        }
+        
+        .joystick-label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+        
+        .throttle-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .throttle-label {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+        
+        .throttle-slider {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 50px;
+            height: 200px;
+        }
+        
+        .throttle-value {
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        
+        .btn-arm {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+        
+        .btn-disarm {
+            background: linear-gradient(135deg, #ee0979, #ff6a00);
+            color: white;
+        }
+        
+        .btn-mode {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .connection-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #ff0000;
+            animation: pulse 2s infinite;
+        }
+        
+        .connection-status.connected {
+            background: #00ff00;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .telemetry {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="connection-status" id="connStatus"></div>
+            <h1>🚁 DroneOS Control</h1>
+            <div class="status">
+                <div class="status-item">
+                    <span>Battery</span>
+                    <span class="status-value" id="battery">11.1V</span>
+                </div>
+                <div class="status-item">
+                    <span>Mode</span>
+                    <span class="status-value" id="mode">DISARMED</span>
+                </div>
+                <div class="status-item">
+                    <span>Signal</span>
+                    <span class="status-value" id="signal">--</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="joystick-container">
+                <div class="joystick-label">PITCH / ROLL</div>
+                <div class="joystick" id="leftJoystick">
+                    <div class="joystick-stick" id="leftStick"></div>
+                </div>
+            </div>
+            
+            <div class="throttle-container">
+                <div class="throttle-label">THROTTLE</div>
+                <input type="range" class="throttle-slider" id="throttle" 
+                       min="0" max="1000" value="0" orient="vertical">
+                <div class="throttle-value" id="throttleValue">0%</div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn btn-arm" onclick="arm()">ARM</button>
+            <button class="btn btn-disarm" onclick="disarm()">DISARM</button>
+            <button class="btn btn-mode" onclick="changeMode()">STABILIZE</button>
+            <button class="btn btn-mode" onclick="emergency()">EMERGENCY</button>
+        </div>
+        
+        <div class="telemetry">
+            <div class="telemetry-grid">
+                <div>Roll: <span id="roll">0°</span></div>
+                <div>Pitch: <span id="pitch">0°</span></div>
+                <div>Yaw: <span id="yaw">0°</span></div>
+                <div>Alt: <span id="altitude">0m</span></div>
+                <div>GPS: <span id="gps">--</span></div>
+                <div>Time: <span id="flightTime">0:00</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WiFi connection settings
+        const DRONE_IP = '192.168.4.1';  // DroneOS AP IP
+        const DRONE_PORT = '5760';
+        let ws = null;
+        let connected = false;
+        
+        // RC values
+        let rcData = {
+            throttle: 0,
+            roll: 0,
+            pitch: 0,
+            yaw: 0,
+            aux1: 0,
+            aux2: 0
+        };
+        
+        // Connect to drone
+        function connect() {
+            const url = `ws://${DRONE_IP}:${DRONE_PORT}`;
+            ws = new WebSocket(url);
+            
+            ws.onopen = () => {
+                connected = true;
+                document.getElementById('connStatus').classList.add('connected');
+                console.log('Connected to DroneOS');
+            };
+            
+            ws.onclose = () => {
+                connected = false;
+                document.getElementById('connStatus').classList.remove('connected');
+                setTimeout(connect, 2000);  // Reconnect
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                updateTelemetry(data);
+            };
+        }
+        
+        // Send RC data
+        function sendRC() {
+            if (!connected || !ws) return;
+            
+            const cmd = `RC:${rcData.throttle},${rcData.roll},${rcData.pitch},${rcData.yaw},${rcData.aux1},${rcData.aux2}\n`;
+            
+            // WebSocket orqali
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(cmd);
+            }
+            
+            // Yoki HTTP POST
+            fetch(`http://${DRONE_IP}:${DRONE_PORT}/rc`, {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: cmd
+            }).catch(err => console.log('Send error:', err));
+        }
+        
+        // Joystick control
+        function setupJoystick(joystickId, stickId, callback) {
+            const joystick = document.getElementById(joystickId);
+            const stick = document.getElementById(stickId);
+            
+            let isDragging = false;
+            let centerX, centerY, maxRadius;
+            
+            function updatePosition(clientX, clientY) {
+                const rect = joystick.getBoundingClientRect();
+                centerX = rect.width / 2;
+                centerY = rect.height / 2;
+                maxRadius = centerX - 30;
+                
+                let deltaX = clientX - rect.left - centerX;
+                let deltaY = clientY - rect.top - centerY;
+                
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                
+                if (distance > maxRadius) {
+                    const angle = Math.atan2(deltaY, deltaX);
+                    deltaX = Math.cos(angle) * maxRadius;
+                    deltaY = Math.sin(angle) * maxRadius;
+                }
+                
+                stick.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`;
+                
+                // Normalize to -500 to +500
+                const x = (deltaX / maxRadius) * 500;
+                const y = -(deltaY / maxRadius) * 500;  // Invert Y
+                
+                callback(x, y);
+            }
+            
+            function handleStart(e) {
+                e.preventDefault();
+                isDragging = true;
+            }
+            
+            function handleMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const touch = e.touches ? e.touches[0] : e;
+                updatePosition(touch.clientX, touch.clientY);
+            }
+            
+            function handleEnd(e) {
+                e.preventDefault();
+                isDragging = false;
+                stick.style.transform = 'translate(-50%, -50%)';
+                callback(0, 0);
+            }
+            
+            stick.addEventListener('touchstart', handleStart);
+            stick.addEventListener('mousedown', handleStart);
+            
+            document.addEventListener('touchmove', handleMove);
+            document.addEventListener('mousemove', handleMove);
+            
+            document.addEventListener('touchend', handleEnd);
+            document.addEventListener('mouseup', handleEnd);
+        }
+        
+        // Left joystick: Roll/Pitch
+        setupJoystick('leftJoystick', 'leftStick', (x, y) => {
+            rcData.roll = Math.round(x);
+            rcData.pitch = Math.round(y);
+        });
+        
+        // Throttle slider
+        document.getElementById('throttle').addEventListener('input', (e) => {
+            rcData.throttle = parseInt(e.target.value);
+            const percent = Math.round((rcData.throttle / 1000) * 100);
+            document.getElementById('throttleValue').textContent = percent + '%';
+        });
+        
+        // Buttons
+        function arm() {
+            rcData.aux2 = 2000;  // Arm signal
+            document.getElementById('mode').textContent = 'ARMED';
+            sendRC();
+            setTimeout(() => { rcData.aux2 = 1000; }, 500);
+        }
+        
+        function disarm() {
+            rcData.aux2 = 1000;  // Disarm signal
+            document.getElementById('mode').textContent = 'DISARMED';
+            sendRC();
+        }
+        
+        function changeMode() {
+            rcData.aux1 = rcData.aux1 === 1000 ? 2000 : 1000;
+            const mode = rcData.aux1 === 1000 ? 'STABILIZE' : 'ACRO';
+            document.getElementById('mode').textContent = mode;
+        }
+        
+        function emergency() {
+            rcData.throttle = 0;
+            rcData.aux2 = 1000;  // Disarm
+            sendRC();
+            alert('EMERGENCY STOP!');
+        }
+        
+        // Update telemetry
+        function updateTelemetry(data) {
+            if (data.battery) document.getElementById('battery').textContent = data.battery.toFixed(1) + 'V';
+            if (data.roll) document.getElementById('roll').textContent = data.roll.toFixed(1) + '°';
+            if (data.pitch) document.getElementById('pitch').textContent = data.pitch.toFixed(1) + '°';
+            if (data.yaw) document.getElementById('yaw').textContent = data.yaw.toFixed(1) + '°';
+            if (data.altitude) document.getElementById('altitude').textContent = data.altitude.toFixed(1) + 'm';
+            if (data.signal) document.getElementById('signal').textContent = data.signal + '%';
+        }
+        
+        // Send RC data 50 times per second
+        setInterval(sendRC, 20);
+        
+        // Request telemetry 10 times per second
+        setInterval(() => {
+            if (connected) {
+                fetch(`http://${DRONE_IP}:${DRONE_PORT}/telemetry`)
+                    .then(r => r.json())
+                    .then(updateTelemetry)
+                    .catch(() => {});
+            }
+        }, 100);
+        
+        // Initial connection
+        connect();
+        
+        // Prevent screen sleep
+        if ('wakeLock' in navigator) {
+            navigator.wakeLock.request('screen');
+        }
+    </script>
+</body>
+</html>
