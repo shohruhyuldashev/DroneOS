@@ -157,19 +157,7 @@ Developing DroneOS from scratch 🚀
 
 This project is for educational and research purposes.
 
-````
 
-
-
-## ✅ Endi GitHub’ga qo‘shish
-
-```
-bash
-nano README.md     # yuqoridagi matnni joylash
-git add README.md
-git commit -m "Add project README"
-git push
-````
 
 
 
